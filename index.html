@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>IFS Invoice</title>
+<style>
+#app,*{box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Arial}
+:root{--bg:#f6f7f9;--panel:#fff;--ink:#0f172a;--muted:#64748b;--line:#e5e7eb;--navy:#0f2345;--green:#18a058}
+body{margin:0;background:var(--bg);color:var(--ink)}
+#app{max-width:1360px;margin:0 auto;padding:18px}
+.wrap{display:grid;grid-template-columns:1fr 300px;gap:24px}
+.main{background:var(--panel);border:1px solid var(--line);border-radius:8px}
+.aside{position:sticky;top:18px;height:max-content;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px}
+.btn{display:inline-flex;align-items:center;justify-content:center;border:1px solid transparent;border-radius:6px;padding:10px 14px;font-weight:600;cursor:pointer}
+.btn.green{background:var(--green);color:#fff}
+.title { position: relative; left: -110px;}
+.title{margin-top:10px !important}
+.rightHeader{display:flex;flex-direction:column}
+.rightHeader>.meta{margin-top:auto !important}
+.btn.ghost{background:#fff;border-color:var(--line);color:var(--ink)}
+.input,select,textarea{width:100%;border:1px solid var(--line);border-radius:6px;padding:10px 12px;background:#fff;color:var(--ink);font-size:14px;outline:none}
+.input:focus,select:focus,textarea:focus{border-color:#c7d2fe;box-shadow:0 0 0 3px rgba(37,99,235,.12)}
+.small{font-size:12px;color:var(--muted)}
+.header{display:grid;grid-template-columns:1fr 420px;gap:24px;padding:18px;border-bottom:1px solid var(--line)}
+.leftHeader{display:grid;grid-template-columns:200px 1fr;gap:20px;align-items:start}
+.logoCol{display:flex;flex-direction:column;align-items:flex-start;gap:14px}
+.logo{width:160px;height:120px;border:1px dashed var(--line);border-radius:6px;background:#fafafa;display:flex;align-items:center;justify-content:center}
+.fieldLabel{font-size:13px;color:var(--muted);margin-bottom:6px;align-self:flex-start;width:100%}
+.rightHeader{text-align:right}
+.title{font-size:36px;letter-spacing:1px;font-weight:800;white-space:nowrap;margin-bottom:10px;margin-left:-24px}
+.meta{display:grid;grid-template-columns:120px 1fr;gap:10px 12px;margin-left:auto;max-width:360px}
+.tableWrap{padding:0 18px 18px}
+.tableHead{background:var(--navy);color:#fff;border-radius:6px 6px 0 0}
+.tableHeadRow{display:grid;grid-template-columns:1fr 120px 160px 160px 48px;gap:8px;padding:12px 14px;font-weight:600}
+.row{display:grid;grid-template-columns:1fr 120px 160px 160px 48px;gap:8px;padding:10px 14px;border-left:1px solid var(--line);border-right:1px solid var(--line);border-bottom:1px solid var(--line);background:#fff}
+.row:first-of-type{border-top:1px solid var(--line)}
+.qty,.rate,.amount{text-align:right}
+.actionsBar{display:flex;justify-content:space-between;align-items:center;padding:12px 0}
+.grid2{display:grid;grid-template-columns:1fr 420px;gap:18px}
+.card{border:1px solid var(--line);border-radius:6px;background:#fff;padding:14px}
+.totals .line{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px dashed var(--line)}
+.totals .line:last-child{border-bottom:none}
+.totals .grand{font-weight:800}
+.linkRow{display:flex;gap:18px;color:#0a6b3d;font-weight:700}
+.footerBtns{display:flex;justify-content:flex-end;gap:10px;padding:12px 18px 18px}
+.inputGroup{display:flex;align-items:center;gap:6px}
+.affix{color:#64748b;min-width:14px;text-align:center}
+.iconBtn{border:1px solid var(--line);background:#fff;border-radius:6px;padding:6px;line-height:1;cursor:pointer}
+@media(max-width:1180px){.wrap{grid-template-columns:1fr}.header{grid-template-columns:1fr}.grid2{grid-template-columns:1fr}}
+@media print{body{background:#fff}.aside,.footerBtns,.actionsBar .btn{display:none!important}.wrap{grid-template-columns:1fr}.main{border:none}}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="wrap">
+    <div class="main" id="invoice">
+      <div class="header">
+        <div class="leftHeader">
+          <div class="logoCol">
+            <div class="logo"><img src="http://tools.intelligentfs.com.au/wp-content/uploads/2025/10/we-work_-full-lockup@300x-2048x642-1.png" alt="IFS Logo" style="width:100%;height:100%;object-fit:contain"/></div>
+            <div class="fieldLabel">Who is this from?</div>
+            <input id="from" class="input" type="text" value="Intelligent Financial Solutions Pty Ltd," readonly />
+            <div class="fieldLabel" style="margin-top:6px">Bill To</div>
+            <input id="billto" class="input" placeholder="Who is this to?"/>
+          </div>
+        </div>
+        <div class="rightHeader">
+          <div class="title">Intelligent Financial Solutions</div>
+          <div style="display:grid;grid-template-columns:110px 1fr;gap:8px;justify-items:start;margin-left:auto;max-width:360px">
+            <div class="fieldLabel">#</div>
+            <input id="invNumber" class="input" value="1"/>
+          </div>
+          <div class="meta" style="margin-top:10px">
+            <div class="fieldLabel">Date</div>
+            <input id="invDate" type="date" class="input"/>
+            <div class="fieldLabel">Due Date</div>
+            <input id="dueDate" type="date" class="input"/>
+          </div>
+        </div>
+      </div>
+
+      <div class="tableWrap">
+        <div class="tableHead">
+          <div class="tableHeadRow">
+            <div>Item</div>
+            <div style="text-align:right">Quantity</div>
+            <div style="text-align:right">Rate</div>
+            <div style="text-align:right">Amount</div>
+            <div></div>
+          </div>
+        </div>
+        <div id="rows"></div>
+        <div class="actionsBar">
+          <button id="addRow" class="btn ghost">+ Line Item</button>
+          <div></div>
+        </div>
+        <div class="grid2" style="margin-top:12px">
+          <div>
+            <div class="fieldLabel">Bank Details</div>
+            <input id="bank" class="input" type="text" value="Enter Your Bank Details" />
+            <div class="fieldLabel" style="margin-top:14px">Terms</div>
+            <input id="terms" class="input" placeholder="Terms and conditions - late fees, payment methods, delivery schedule"/>
+          </div>
+          <div class="card totals">
+            <div class="line"><div>Subtotal</div><div id="subtotal">$0.00</div></div>
+            <div class="line">
+              <div class="linkRow">
+                <span id="toggleDiscount" style="cursor:pointer;color:#0a6b3d;font-weight:700">+ Discount</span>
+                <span id="toggleTax" style="cursor:pointer;color:#0a6b3d;font-weight:700">+ Tax</span>
+              </div>
+              <div></div>
+            </div>
+            <div id="discountRow" class="line" style="display:none">
+              <div style="display:flex;align-items:center;gap:10px">
+                <span>Discount</span>
+                <div class="inputGroup">
+                  <span id="discPrefix" class="affix" style="display:none">$</span>
+                  <input id="discount" class="input" type="number" min="0" step="0.01" style="width:96px" value="0"/>
+                  <span id="discSuffix" class="affix">%</span>
+                  <button id="discSwap" class="iconBtn" type="button">↻</button>
+                  <button id="discClear" class="iconBtn" type="button">×</button>
+                </div>
+              </div>
+              <div id="discountAmt">-$0.00</div>
+            </div>
+            <div id="taxRow" class="line" style="display:none">
+              <div style="display:flex;align-items:center;gap:10px">
+                <span>Tax</span>
+                <div class="inputGroup">
+                  <span id="taxPrefix" class="affix" style="display:none">$</span>
+                  <input id="taxPct" class="input" type="number" min="0" step="0.01" style="width:96px" value="0"/>
+                  <span id="taxSuffix" class="affix">%</span>
+                  <button id="taxSwap" class="iconBtn" type="button">↻</button>
+                  <button id="taxClear" class="iconBtn" type="button">×</button>
+                </div>
+              </div>
+              <div id="taxAmt">$0.00</div>
+            </div>
+            <div class="line grand"><div>Total</div><div id="grand">$0.00</div></div>
+            <div class="line"><div>Amount Paid</div><div><input id="paid" type="number" min="0" step="0.01" class="input" style="width:160px" value="0"/></div></div>
+            <div class="line grand"><div>Balance Due</div><div id="balance">$0.00</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="footerBtns">
+        <button id="save" class="btn ghost">Save</button>
+        <button id="clear" class="btn ghost">Clear Saved</button>
+      </div>
+    </div>
+
+    <div class="aside">
+      <button id="downloadAside" class="btn green" style="width:100%">⬇ Download</button>
+      <div class="fieldLabel" style="margin-top:16px">Theme</div>
+      <select class="input"><option>Classic</option></select>
+      <div class="fieldLabel" style="margin-top:12px">Currency</div>
+      <select id="currency" class="input">
+        <option value="AUD">AUD ($)</option>
+        <option value="USD">USD ($)</option>
+        <option value="EUR">EUR (€)</option>
+        <option value="GBP">GBP (£)</option>
+        <option value="INR">INR (₹)</option>
+        <option value="CAD">CAD ($)</option>
+      </select>
+      <div style="margin-top:16px;color:#0a6b3d;font-weight:700;cursor:pointer">Save Default</div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+const $=s=>document.querySelector(s),$$=s=>Array.from(document.querySelectorAll(s));
+const nf=(v,c)=>new Intl.NumberFormat('en-US',{style:'currency',currency:c}).format(+v||0);
+const K='ifs_invoice_logo_corner_title_left_v1';
+let discMode='pct';
+let taxMode='pct';
+const els={rows:$('#rows'),addRow:$('#addRow'),subtotal:$('#subtotal'),
+discount:$('#discount'),discountAmt:$('#discountAmt'),
+taxPct:$('#taxPct'),taxAmt:$('#taxAmt'),
+grand:$('#grand'),paid:$('#paid'),balance:$('#balance'),
+currency:$('#currency'),from:$('#from'),billto:$('#billto'),bank:$('#bank'),terms:$('#terms'),
+invNumber:$('#invNumber'),invDate:$('#invDate'),dueDate:$('#dueDate'),
+save:$('#save'),clear:$('#clear'),downloadAside:$('#downloadAside'),
+toggleDiscount:$('#toggleDiscount'),toggleTax:$('#toggleTax'),
+discountRow:$('#discountRow'),taxRow:$('#taxRow'),
+discPrefix:$('#discPrefix'),discSuffix:$('#discSuffix'),discSwap:$('#discSwap'),discClear:$('#discClear'),
+taxPrefix:$('#taxPrefix'),taxSuffix:$('#taxSuffix'),taxSwap:$('#taxSwap'),taxClear:$('#taxClear')};
+function row(data={}){const r=document.createElement('div');r.className='row';r.innerHTML=`<input class="input" placeholder="Description of item/service..." value="${data.desc||''}"/><input class="input qty" type="number" min="0" step="1" value="${data.qty??1}"/><div style="display:flex;gap:6px"><span style="align-self:center" class="small">$</span><input class="input rate" type="number" min="0" step="0.01" value="${data.rate??0}"/></div><div class="amount">$0.00</div><button class="btn ghost" data-remove>×</button>`;r.addEventListener('input',()=>{calc();save();});r.querySelector('[data-remove]').addEventListener('click',()=>{r.remove();calc();save();});return r}
+function add(pref){const r=row(pref);els.rows.appendChild(r)}
+function g(v){return Math.max(0,+v||0)}
+function calc(){const cur=els.currency.value;let sub=0;$$('#rows .row').forEach(r=>{const q=g(r.querySelector('.qty').value);const rate=g(r.querySelector('.rate').value);const line=q*rate;sub+=line;r.querySelector('.amount').textContent=nf(line,cur)});const dVal=g(els.discount.value);const tVal=g(els.taxPct.value);const discAmt=discMode==='pct'?sub*(dVal/100):Math.min(dVal,sub);const base=Math.max(0,sub-discAmt);const taxAmt=taxMode==='pct'?base*(tVal/100):tVal;const total=base+taxAmt;const bal=Math.max(0,total-g(els.paid.value));els.subtotal.textContent=nf(sub,cur);els.discountAmt.textContent='-'+nf(discAmt,cur);els.taxAmt.textContent=nf(taxAmt,cur);els.grand.textContent=nf(total,cur);els.balance.textContent=nf(bal,cur)}
+function save(){const data={currency:els.currency.value,from:els.from.value,billto:els.billto.value,bank:els.bank.value,terms:els.terms.value,invNumber:els.invNumber.value,invDate:els.invDate.value,dueDate:els.dueDate.value,paid:els.paid.value,discMode,taxMode,discountVal:els.discount.value,taxVal:els.taxPct.value,showDiscount:els.discountRow.style.display!=='none',showTax:els.taxRow.style.display!=='none',items:$$('#rows .row').map(r=>({desc:r.children[0].value,qty:r.querySelector('.qty').value,rate:r.querySelector('.rate').value}))};localStorage.setItem(K,JSON.stringify(data))}
+function load(){const raw=localStorage.getItem(K);if(!raw){add({});calc();return}try{const d=JSON.parse(raw);els.currency.value=d.currency||'AUD';els.from.value=d.from||'';els.billto.value=d.billto||'';els.bank.value=d.bank||'';els.terms.value=d.terms||'';els.invNumber.value=d.invNumber||'';els.invDate.value=d.invDate||'';els.dueDate.value=d.dueDate||'';els.paid.value=d.paid||0;discMode=d.discMode||'pct';taxMode=d.taxMode||'pct';els.discount.value=d.discountVal||0;els.taxPct.value=d.taxVal||0;els.discountRow.style.display=d.showDiscount?'flex':'none';els.taxRow.style.display=d.showTax?'flex':'none';els.discPrefix.style.display=discMode==='amt'?'inline':'none';els.discSuffix.style.display=discMode==='pct'?'inline':'none';els.taxPrefix.style.display=taxMode==='amt'?'inline':'none';els.taxSuffix.style.display=taxMode==='pct'?'inline':'none';els.rows.innerHTML='';(d.items&&d.items.length?d.items:[{}]).forEach(it=>add(it))}catch(e){els.rows.innerHTML='';add({})}}
+function resetDates(){const t=new Date().toISOString().slice(0,10);els.invDate.value=t;els.dueDate.value=t}
+[els.currency,els.from,els.billto,els.bank,els.terms,els.invNumber,els.invDate,els.dueDate,els.paid].forEach(el=>el.addEventListener('input',()=>{calc();save()}))
+els.addRow.addEventListener('click',()=>{add({});calc();save()})
+els.save.addEventListener('click',save)
+els.clear.addEventListener('click',()=>{localStorage.removeItem(K);location.reload()})
+els.downloadAside.addEventListener('click',()=>{const node=document.getElementById('invoice');const opt={margin:0,filename:'Invoice.pdf',image:{type:'jpeg',quality:0.98},html2canvas:{scale:2,useCORS:true},jsPDF:{unit:'pt',format:'a4',orientation:'portrait'}};html2pdf().set(opt).from(node).save()})
+$('#toggleDiscount').addEventListener('click',()=>{els.discountRow.style.display=els.discountRow.style.display==='none'?'flex':'none'})
+$('#toggleTax').addEventListener('click',()=>{els.taxRow.style.display=els.taxRow.style.display==='none'?'flex':'none'})
+els.discSwap.addEventListener('click',()=>{discMode=discMode==='pct'?'amt':'pct';els.discPrefix.style.display=discMode==='amt'?'inline':'none';els.discSuffix.style.display=discMode==='pct'?'inline':'none';calc();save()})
+els.taxSwap.addEventListener('click',()=>{taxMode=taxMode==='pct'?'amt':'pct';els.taxPrefix.style.display=taxMode==='amt'?'inline':'none';els.taxSuffix.style.display=taxMode==='pct'?'inline':'none';calc();save()})
+els.discClear.addEventListener('click',()=>{els.discount.value=0;els.discountRow.style.display='none';calc();save()})
+els.taxClear.addEventListener('click',()=>{els.taxPct.value=0;els.taxRow.style.display='none';calc();save()})
+['input','change'].forEach(ev=>{els.discount.addEventListener(ev,()=>{calc();save()});els.taxPct.addEventListener(ev,()=>{calc();save()})})
+load();resetDates();calc();
+</script>
+</body>
+</html>
