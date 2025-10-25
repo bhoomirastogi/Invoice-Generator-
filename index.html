@@ -19,10 +19,10 @@ body{margin:0;background:var(--bg);color:var(--ink)}
 .input,select,textarea{width:100%;border:1px solid var(--line);border-radius:6px;padding:10px 12px;background:#fff;color:var(--ink);font-size:14px;outline:none}
 .input:focus,select:focus,textarea:focus{border-color:#c7d2fe;box-shadow:0 0 0 3px rgba(37,99,235,.12)}
 .small{font-size:12px;color:var(--muted)}
-.header{display:grid;grid-template-columns:1fr 420px;gap:24px;padding:18px;border-bottom:1px solid var(--line)}
-.leftHeader{display:grid;grid-template-columns:200px 1fr;gap:20px;align-items:start}
+.header{display:grid;grid-template-columns:1fr 520px;gap:24px;padding:18px;border-bottom:1px solid var(--line)}
+.leftHeader{display:grid;grid-template-columns:300px 1fr;gap:20px;align-items:start}
 .logoCol{display:flex;flex-direction:column;align-items:flex-start;gap:14px}
-.logo{width:160px;height:120px;border:1px dashed var(--line);border-radius:6px;background:#fafafa;display:flex;align-items:center;justify-content:center}
+.logo{width:200px;height:150px;border:none;border-radius:0;background:transparent;display:flex;align-items:center;justify-content:center}
 .fieldLabel{font-size:13px;color:var(--muted);margin-bottom:6px;align-self:flex-start;width:100%}
 .title{font-size:36px;letter-spacing:1px;font-weight:600;white-space:nowrap;margin:10px 0}
 .meta{display:grid;grid-template-columns:120px 1fr;gap:10px 12px;margin-left:auto;max-width:360px}
@@ -30,6 +30,9 @@ body{margin:0;background:var(--bg);color:var(--ink)}
 .totals .line.grand:last-of-type {
   font-weight: 600;
 }
+.inputAffix{position:relative}
+.affixHash{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted)}
+.invNumInput{text-align:right;padding-left:28px}
 
 .tableHead{background:var(--navy);color:#fff;border-radius:6px 6px 0 0}
 .tableHeadRow{display:grid;grid-template-columns:1fr 120px 160px 160px 48px;gap:8px;padding:12px 14px;font-weight:600}
@@ -47,11 +50,44 @@ body{margin:0;background:var(--bg);color:var(--ink)}
 .inputGroup{display:flex;align-items:center;gap:6px}
 .affix{color:#64748b;min-width:14px;text-align:center}
 .iconBtn{border:1px solid var(--line);background:#fff;border-radius:6px;padding:6px;line-height:1;cursor:pointer}
-.exporting .aside{display:none!important}
-.exporting .noExport{display:none!important}
 @media(max-width:1180px){.wrap{grid-template-columns:1fr}.header{grid-template-columns:1fr}.grid2{grid-template-columns:1fr}}
 @media print{body{background:#fff}.aside,.footerBtns,.actionsBar .btn{display:none!important}.wrap{grid-template-columns:1fr}.main{border:none}}
+/* helpers */
+.printOnly{display:none !important}
+.screenOnly{display:inline !important}
+
+@media print{
+  .printOnly{display:inline !important}
+  .screenOnly{display:none !important}
+
+  /* hide invoice number input + # icon only in PDF */
+  #invNumber, .affixHash{display:none !important}
+
+  /* hide interactive bits in PDF */
+  .inputGroup,.affix,#discSuffix,#taxSuffix,#discSwap,#discClear,#taxSwap,#taxClear{display:none !important}
+  #toggleDiscount,#toggleTax{display:none !important}
+}
 </style>
+
+<style>
+@page{size:A4;margin:12mm}
+@media print{
+html,body{width:210mm}
+body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+#app{max-width:none;padding:0}
+.wrap{display:block}
+.main{width:186mm;margin:0 auto;border:none}
+.header{grid-template-columns:1fr 320px;gap:12px;padding:12px 0}
+.leftHeader{grid-template-columns:220px 1fr;gap:12px}
+.title{font-size:28px}
+.tableHeadRow,.row{grid-template-columns:1fr 80px 120px 120px 36px;gap:6px;padding:8px 10px}
+.btn,.aside,.footerBtns,.actionsBar .btn{display:none !important}
+.input,textarea{border:none;padding:0}
+.tableHead{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.row,.card,.tableWrap{break-inside:avoid;page-break-inside:avoid}
+}
+</style>
+
 </head>
 <body>
 <div id="app">
@@ -60,7 +96,7 @@ body{margin:0;background:var(--bg);color:var(--ink)}
       <div class="header">
         <div class="leftHeader">
           <div class="logoCol">
-            <div class="logo"><img src="http://tools.intelligentfs.com.au/wp-content/uploads/2025/10/we-work_-full-lockup@300x-2048x642-1.png" alt="IFS Logo" style="width:100%;height:100%;object-fit:contain"/></div>
+            <div class="logo"><img src="https://tools.intelligentfs.com.au/wp-content/uploads/2025/10/we-work_-full-lockup@300x-2048x642-1.png" alt="IFS Logo" style="width:100%;height:100%;object-fit:contain"/></div>
             <div class="fieldLabel"></div>
             <textarea id="from" class="input" placeholder="Intelligent Financial Solutions Pty Ltd"></textarea>
             <div class="fieldLabel" style="margin-top:6px">Bill To</div>
@@ -68,11 +104,15 @@ body{margin:0;background:var(--bg);color:var(--ink)}
           </div>
         </div>
         <div class="rightHeader">
-          <textarea id="titleText" class="title input" rows="1" style="resize:none;text-align:right">Invoice</textarea>
-          <div style="display:grid;grid-template-columns:110px 1fr;gap:8px;justify-items:start;margin-left:auto;max-width:360px">
-            <div class="fieldLabel">#</div>
-            <input id="invNumber" class="input" value="1"/>
-          </div>
+       <textarea id="titleText" class="title input" rows="1" style="resize:none;text-align:right;width:180px">Invoice</textarea>
+        <div style="display:grid;grid-template-columns:1fr;gap:8px;justify-items:start;margin-left:auto;max-width:360px">
+  <div class="inputAffix">
+    <span class="affixHash screenOnly">#</span>
+    <input id="invNumber" class="input invNumInput" value="1"/>
+    <span id="invNumberPrint" class="printOnly"></span>
+  </div>
+</div>
+
           <div class="meta" style="margin-top:10px">
             <div class="fieldLabel">Date</div>
             <input id="invDate" type="date" class="input"/>
@@ -115,7 +155,8 @@ body{margin:0;background:var(--bg);color:var(--ink)}
             </div>
             <div id="discountRow" class="line" style="display:none">
               <div style="display:flex;align-items:center;gap:10px">
-                <span>Discount</span>
+                <span class="screenOnly">Discount</span>
+    <span id="discountLabel" class="printOnly"></span>
                 <div class="inputGroup">
                   <span id="discPrefix" class="affix" style="display:none">$</span>
                   <input id="discount" class="input" type="number" min="0" step="0.01" style="width:96px" value="0"/>
@@ -128,7 +169,8 @@ body{margin:0;background:var(--bg);color:var(--ink)}
             </div>
             <div id="taxRow" class="line" style="display:none">
               <div style="display:flex;align-items:center;gap:10px">
-                <span>Tax</span>
+                <span class="screenOnly">Tax</span>
+    <span id="taxLabel" class="printOnly"></span>
                 <div class="inputGroup">
                   <span id="taxPrefix" class="affix" style="display:none">$</span>
                   <input id="taxPct" class="input" type="number" min="0" step="0.01" style="width:96px" value="0"/>
@@ -147,14 +189,13 @@ body{margin:0;background:var(--bg);color:var(--ink)}
       </div>
       <div class="footerBtns">
         <button id="save" class="btn ghost">Save</button>
-        <button id="clear" class="btn ghost">Clear Saved</button>
+        <button id="clear" class="btn ghost">Clear</button>
       </div>
     </div>
 
     <div class="aside">
       <button id="downloadAside" class="btn green" style="width:100%">⬇ Download</button>
-      <div class="fieldLabel" style="margin-top:16px">Theme</div>
-      <select class="input"><option>Classic</option></select>
+      
       <div class="fieldLabel" style="margin-top:12px">Currency</div>
       <select id="currency" class="input">
         <option value="AUD">AUD ($)</option>
@@ -168,8 +209,6 @@ body{margin:0;background:var(--bg);color:var(--ink)}
     </div>
   </div>
 </div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script>
 const $=s=>document.querySelector(s),$$=s=>Array.from(document.querySelectorAll(s));
 const nf=(v,c)=>new Intl.NumberFormat('en-US',{style:'currency',currency:c}).format(+v||0);
@@ -259,52 +298,11 @@ function load(){
   }
 }
 function resetDates(){const t=new Date().toISOString().slice(0,10);els.invDate.value=t;els.dueDate.value=t}
-function onCalc(el){['input','change','keyup','click','paste'].forEach(ev=>el.addEventListener(ev,()=>{calc();save()}))}
+function onCalc(el){if(el){['input','change','keyup','click','paste'].forEach(ev=>el.addEventListener(ev,()=>{calc();save()}))}}
 [els.currency,els.from,els.billto,els.bank,els.terms,els.invNumber,els.invDate,els.dueDate,els.paid,els.titleText].forEach(onCalc);
 els.addRow.addEventListener('click',()=>{add({});calc();save()});
 els.save.addEventListener('click',save);
 els.clear.addEventListener('click',()=>{localStorage.removeItem(K);location.reload()});
-
-function makeCloneForExport(src){
-  const clone=src.cloneNode(true);
-  clone.style.maxWidth=src.style.maxWidth||'unset';
-  clone.querySelectorAll('input,textarea').forEach(el=>{
-    const wrapper=document.createElement('div');
-    wrapper.className=el.className;
-    wrapper.style.cssText=el.style.cssText;
-    let text=el.value||'';
-    if(el.type==='date'&&el.value){try{const d=new Date(el.value);text=d.toLocaleDateString()}catch(_){text=el.value}}
-    if(el.id==='currency'&&el.tagName==='SELECT'){text=el.value}
-    wrapper.textContent=text;
-    if(el.id==='titleText'){wrapper.classList.add('title');wrapper.style.textAlign='right'}
-    el.replaceWith(wrapper);
-  });
-  clone.querySelectorAll('#toggleDiscount, #toggleTax, .noExport, [data-remove], .footerBtns button, .iconBtn').forEach(n=>n&&n.remove());
-  return clone;
-}
-
-els.downloadAside.addEventListener('click',()=>{
-  const invoice=document.getElementById('invoice');
-  document.body.classList.add('exporting');
-
-  const printable=makeCloneForExport(invoice);
-  printable.id='invoice-printable';
-  printable.style.position='absolute';
-  printable.style.left='0';
-  printable.style.top='0';
-  printable.style.width='100%';
-  printable.style.background='#fff';
-  printable.style.zIndex='9999';
-  document.body.appendChild(printable);
-
-  const opt={margin:0,filename:'Invoice.pdf',image:{type:'jpeg',quality:0.98},html2canvas:{scale:2,useCORS:true},jsPDF:{unit:'pt',format:'a4',orientation:'portrait'}};
-  html2pdf().set(opt).from(printable).save().then(()=>{
-    printable.remove();
-    document.body.classList.remove('exporting');
-  });
-});
-
-
 $('#toggleDiscount').addEventListener('click',()=>{els.discountRow.style.display=els.discountRow.style.display==='none'?'flex':'none';calc();save()});
 $('#toggleTax').addEventListener('click',()=>{els.taxRow.style.display=els.taxRow.style.display==='none'?'flex':'none';calc();save()});
 els.discSwap.addEventListener('click',()=>{discMode=discMode==='pct'?'amt':'pct';els.discPrefix.style.display=discMode==='amt'?'inline':'none';els.discSuffix.style.display=discMode==='pct'?'inline':'none';calc();save()});
@@ -318,6 +316,31 @@ els.taxClear.addEventListener('click',()=>{els.taxPct.value=0;els.taxRow.style.d
 });
 els.totalsCard.addEventListener('input',()=>{calc();save()});
 els.totalsCard.addEventListener('keyup',()=>{calc();save()});
+
+function updatePrintLabels(){
+  const cur = els.currency.value;
+  const dVal = +els.discount.value || 0;
+  const tVal = +els.taxPct.value || 0;
+  const discountLabel = (discMode === 'pct') ? `Discount (${dVal}%)` : `Discount (${nf(dVal, cur)})`;
+  const taxLabel      = (taxMode  === 'pct') ? `Tax (${tVal}%)`     : `Tax (${nf(tVal, cur)})`;
+  const dLbl = document.getElementById('discountLabel');
+  const tLbl = document.getElementById('taxLabel');
+  if (dLbl) dLbl.textContent = discountLabel;
+  if (tLbl) tLbl.textContent = taxLabel;
+    const invPrint = document.getElementById('invNumberPrint');
+  if (invPrint) invPrint.textContent = `# ${els.invNumber.value || ''}`;
+}
+
+
+window.addEventListener('beforeprint', updatePrintLabels);
+els.downloadAside.addEventListener('click', () => {
+  const originalTitle = document.title;
+  updatePrintLabels();             
+  document.title = 'Invoice';
+  window.print();
+  setTimeout(() => { document.title = originalTitle; }, 1000);
+});
+
 load();resetDates();calc();
 </script>
 </body>
