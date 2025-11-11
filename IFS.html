@@ -6,7 +6,6 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>IFS Invoice</title>
 
-  <!-- Base styles -->
   <style>
     #app,
     * {
@@ -136,8 +135,8 @@
     }
 
     .logo {
-      width: 200px;
-      height: 150px;
+      /*width: 200px;*/
+      /*height: 150px;*/
       border: none;
       border-radius: 0;
       background: transparent;
@@ -534,7 +533,8 @@
 </head>
 
 <body>
-  <div id="app">
+  <div id="ifs-app">
+
     <div class="wrap">
       <div class="main" id="invoice">
         <div class="header">
@@ -737,14 +737,16 @@ Enter Your Bank Details</textarea>
   
   
 
-    const $ = (s) => document.querySelector(s),
-      $$ = (s) => Array.from(document.querySelectorAll(s));
+    const ROOT = document.getElementById('ifs-app');
+const $ = (s) => ROOT.querySelector(s);
+const $$ = (s) => Array.from(ROOT.querySelectorAll(s));
+
 
     const nf = (v, c) =>
   new Intl.NumberFormat(c === "AUD" ? "en-AU" : "en-US", { style: "currency", currency: c }).format(+v || 0);
 
+const K = "ifs_invoice_v2";
 
-    const K = "ifs_invoice_logo_corner_title_left_v1";
 
     let discMode = "pct";
     let taxMode = "pct";
@@ -1031,17 +1033,19 @@ Enter Your Bank Details</textarea>
       const taxLabel =
         taxMode === "pct" ? `Tax (${tVal}%)` : `Tax (${nf(tVal, cur)})`;
 
-      const dLbl = document.getElementById("discountLabel");
-      const tLbl = document.getElementById("taxLabel");
-      if (dLbl) dLbl.textContent = discountLabel;
-      if (tLbl) tLbl.textContent = taxLabel;
+      const dLbl = ROOT.querySelector("#discountLabel");
+const tLbl = ROOT.querySelector("#taxLabel");
+if (dLbl) dLbl.textContent = discountLabel;
+if (tLbl) tLbl.textContent = taxLabel;
 
-      const invPrint = document.getElementById("invNumberPrint");
-      if (invPrint) invPrint.textContent = `#${els.invNumber.value || ""}`;
+const invPrint = ROOT.querySelector("#invNumberPrint");
+if (invPrint) invPrint.textContent = `# ${els.invNumber.value || ""}`;
+
     }
 
     function makePrintableClone() {
-      const src = document.getElementById("invoice").cloneNode(true);
+ const src = ROOT.querySelector("#invoice").cloneNode(true);
+
       src.id = "invoicePrint";
 
       // If no terms provided, remove the whole terms block in the clone
@@ -1056,7 +1060,7 @@ Enter Your Bank Details</textarea>
       const invInput = src.querySelector("#invNumber");
       const invSpan = src.querySelector("#invNumberPrint");
       if (invSpan) {
-        invSpan.textContent = invInput?.value ? `#${invInput.value}` : "";
+        invSpan.textContent = invInput?.value ? `# ${invInput.value}` : "";
       }
       if (invInput) {
         invInput.remove();
